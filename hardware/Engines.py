@@ -68,9 +68,11 @@ class Engines:
         self.direction = Direction.RIGHT
 
     def setLeftSpeed(self, speed):
+        if speed > 100: speed = 100
         self.PWMA.ChangeDutyCycle(speed)
 
     def setRightSpeed(self, speed):
+        if speed > 100: speed = 100
         self.PWMB.ChangeDutyCycle(speed)
 
     #####

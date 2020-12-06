@@ -1,4 +1,3 @@
-import time
 # import faulthandler; faulthandler.enable()
 # test
 import RPi.GPIO as GPIO
@@ -7,7 +6,7 @@ from hardware.Engines import Engines
 from hardware.Encoder import Encoder
 from hardware.Movement import Movement
 # from VideoProcess import VideoProcess
-from uBotThesisCam import main
+from lane_detection.MainLogic import MainLogic
 
 GPIO.setmode(GPIO.BCM)
 
@@ -30,7 +29,8 @@ movement = Movement(encoder, engines)
 # === Video Processing ===
 # videoProcessing = VideoProcess(movement)
 # videoProcessing.start()
-main(movement, engines)
+main = MainLogic(movement, engines)
+main.start()
 
 GPIO.cleanup()
 
