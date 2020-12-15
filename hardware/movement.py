@@ -19,13 +19,13 @@ class Movement:
         return impulses
 
     def moveForward(self):
-        self.engines.startForward()
+        self.engines.start_forward()
 
     def moveLeft(self):
-        self.engines.startLeftForward()
+        self.engines.start_left_forward()
 
     def moveRight(self):
-        self.engines.startRightForward()
+        self.engines.start_right_forward()
 
     def stop(self):
         self.engines.stop()
@@ -34,29 +34,29 @@ class Movement:
 
     def turnLeftImpulses(self, impulses):
         self.enkoder.reset()
-        self.engines.startLeftBackward()
-        self.engines.startRightForward()
+        self.engines.start_left_backward()
+        self.engines.start_right_forward()
         while (self.enkoder.left < impulses and self.enkoder.right < impulses):
             time.sleep(0.1)
 
     def turnRightImpulses(self, impulses):
         self.enkoder.reset()
-        self.engines.startRightBackward()
-        self.engines.startLeftForward()
+        self.engines.start_right_backward()
+        self.engines.start_left_forward()
         while (self.enkoder.left < impulses and self.enkoder.right < impulses):
             time.sleep(0.1)
         self.engines.stop()
 
     def moveForwardImpulses(self, impulses):
         self.enkoder.reset()
-        self.engines.startForward()
+        self.engines.start_forward()
         while (self.enkoder.left < impulses and self.enkoder.right < impulses):
             time.sleep(0.1)
         self.engines.stop()
 
     def moveBackwardImpulses(self, impulses):
         self.enkoder.reset()
-        self.engines.startBackward()
+        self.engines.start_backward()
         while (self.enkoder.left < impulses and self.enkoder.right < impulses):
             time.sleep(0.1)
         self.engines.stop()

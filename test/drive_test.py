@@ -3,9 +3,9 @@ import time
 import sys
 sys.path.append("..") # Adds higher directory to python modules path.
 
-from hardware.Engines import Engines
-from hardware.Encoder import Encoder
-from hardware.Movement import Movement
+from hardware.engines import Engines
+from hardware.encoder import Encoder
+from hardware.movement import Movement
 
 GPIO.setmode(GPIO.BCM)
 
@@ -13,7 +13,7 @@ print("-- Drive Test Start --")
 
 # ==== Engines ====
 engines = Engines(6, 5, 26, 20, 12, 21)
-engines.setSpeed(40)
+engines.set_speed(40)
 
 # === Encoder ===
 encoder = Encoder(24, 23)
