@@ -1,5 +1,6 @@
 from main.config import width, height
 import math
+import cv2 as cv
 
 class DetectedLine:
     SIDE_LEFT = -1
@@ -37,9 +38,20 @@ class DetectedLine:
         self.score = self.y_score + self.x_score
 
         # calculate angle
-        dt_y = y2 - y1
-        dt_x = x2 - x1
-        self.angle = round(math.degrees(math.atan(dt_y / dt_x)) * self.side)
+        dt_y = abs(y2 - y1)
+        dt_x = abs(x2 - x1)
+        if dt_y == 0:
+            self.angle = 90
+
+        self.angle = round(math.degrees(math.atan(dt_x / dt_y)))
+        a = (y1-y2)/(x1-x2)
+
+        # TODO!!!
+        if self.side == -1 and a > 0:
+            self.angle *= -1
+
+        if self.side == 1 and a < 0:
+            self.angle *= -1
 
     def calculate_total_diff(self, avg_x, avg_y):
         self.total_diff = abs(self.x_score-avg_x) + abs(self.y_score-avg_y)

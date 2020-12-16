@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="83d3f212-4a13-4439-a0c1-66ccce525825" name="uBot" url="">
+        <fileTransfer rootFolder="/home/pi/uBot/uBot-thesis-software/" accessType="SFTP" host="192.168.1.182" port="22" sshConfigId="562b1179-9d93-488f-b56a-b620dd231174" sshConfig="pi@192.168.1.182:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
