@@ -35,7 +35,7 @@ def draw_lines_on_frame(img, lines, color=[0, 255, 0], thickness=3):
         dtype=np.uint8,
     )
 
-    colors = ([255, 0, 0], [0, 255, 0], [0, 0, 255], [128, 128, 128], [64, 64, 64], [255, 128, 64])
+    colors = ([255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [64, 255, 255], [255, 128, 64])
     colorid = 0
 
     # Loop over all lines and draw them on the blank image.
