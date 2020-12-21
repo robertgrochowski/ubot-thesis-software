@@ -11,32 +11,33 @@ class Direction(Enum):
 
 
 class Engines:
-    def __init__(self, ain1, ain2, bin1, bin2, pwm_a, pwm_b):
+    def __init__(self, in_a1, in_a2, in_b1, in_b2, pwm_a, pwm_b):
+        # Setup GPIO
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup((in_a1, in_a2, in_b1, in_b2, pwm_a, pwm_b), GPIO.OUT)
+        GPIO.output((in_a1, in_a2, in_b1, in_b2), GPIO.LOW)
 
-        GPIO.setup((ain1, ain2, bin1, bin2, pwm_a, pwm_b), GPIO.OUT)
-        GPIO.output((ain1, ain2, bin1, bin2), GPIO.LOW)
+        # Setup I/O pins
+        self.in_a1 = in_a1
+        self.in_a2 = in_a2
+        self.in_b1 = in_b1
+        self.in_b2 = in_b2
+        self.pwm_a = GPIO.PWM(pwm_a, 60)
+        self.pwm_b = GPIO.PWM(pwm_b, 60)
 
-        self.AIN1 = ain1
-        self.AIN2 = ain2
-        self.BIN1 = bin1
-        self.BIN2 = bin2
-        self.PWMA = GPIO.PWM(pwm_a, 60)
-        self.PWMB = GPIO.PWM(pwm_b, 60)
-
-        self.Bspeed = 0
-        self.Aspeed = 0
-
+        self.b_speed = 0
+        self.a_speed = 0
         self.direction = Direction.STOP
 
-        self.PWMA.start(self.Aspeed)
-        self.PWMB.start(self.Bspeed)
+        # start PWM
+        self.pwm_a.start(self.a_speed)
+        self.pwm_b.start(self.b_speed)
 
     def set_speed(self, speed):
-        self.Bspeed = speed
-        self.Aspeed = speed
-        self.PWMB.ChangeDutyCycle(self.Bspeed)
-        self.PWMA.ChangeDutyCycle(self.Aspeed)
+        self.b_speed = speed
+        self.a_speed = speed
+        self.pwm_b.ChangeDutyCycle(self.b_speed)
+        self.pwm_a.ChangeDutyCycle(self.a_speed)
 
     def start_forward(self):
         self.start_right_forward()
@@ -51,13 +52,11 @@ class Engines:
     def stop(self):
         self.stop_right()
         self.stop_left()
-        # self.PWMA.stop()
-        # self.PWMB.stop()
         self.direction = Direction.STOP
 
     def start(self):
-        self.PWMA.start(self.Aspeed)
-        self.PWMB.start(self.Bspeed)
+        self.pwm_a.start(self.a_speed)
+        self.pwm_b.start(self.b_speed)
 
     def turn_left(self):
         self.start_right_forward()
@@ -70,43 +69,34 @@ class Engines:
         self.direction = Direction.RIGHT
 
     def set_left_speed(self, speed):
-        if speed > 100: speed = 100
-        self.PWMA.ChangeDutyCycle(speed)
+        self.pwm_a.ChangeDutyCycle(speed)
 
     def set_right_speed(self, speed):
-        if speed > 100: speed = 100
-        self.PWMB.ChangeDutyCycle(speed)
-
-    #####
+        self.pwm_b.ChangeDutyCycle(speed)
 
     def start_right_forward(self):
-        GPIO.output(self.BIN1, GPIO.LOW)
-        GPIO.output(self.BIN2, GPIO.HIGH)
+        GPIO.output(self.in_b1, GPIO.LOW)
+        GPIO.output(self.in_b2, GPIO.HIGH)
         self.direction = Direction.RIGHT
-        # self.start()
 
     def start_left_forward(self):
-        GPIO.output(self.AIN1, GPIO.LOW)
-        GPIO.output(self.AIN2, GPIO.HIGH)
+        GPIO.output(self.in_a1, GPIO.LOW)
+        GPIO.output(self.in_a2, GPIO.HIGH)
         self.direction = Direction.LEFT
-        # self.start()
 
     def start_right_backward(self):
-        GPIO.output(self.BIN1, GPIO.HIGH)
-        GPIO.output(self.BIN2, GPIO.LOW)
-        # self.start()
+        GPIO.output(self.in_b1, GPIO.HIGH)
+        GPIO.output(self.in_b2, GPIO.LOW)
 
     def start_left_backward(self):
-        GPIO.output(self.AIN1, GPIO.HIGH)
-        GPIO.output(self.AIN2, GPIO.LOW)
-        # self.start()
+        GPIO.output(self.in_a1, GPIO.HIGH)
+        GPIO.output(self.in_a2, GPIO.LOW)
 
     def stop_right(self):
-        GPIO.output(self.BIN1, GPIO.HIGH)
-        GPIO.output(self.BIN2, GPIO.HIGH)
-        # self.start()
+        GPIO.output(self.in_b1, GPIO.HIGH)
+        GPIO.output(self.in_b2, GPIO.HIGH)
 
     def stop_left(self):
-        GPIO.output(self.AIN1, GPIO.HIGH)
-        GPIO.output(self.AIN2, GPIO.HIGH)
-        # self.start()
+        GPIO.output(self.in_a1, GPIO.HIGH)
+        GPIO.output(self.in_a2, GPIO.HIGH)
+
