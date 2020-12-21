@@ -3,3 +3,4 @@
 *.pyc
 .gitignore
 venv/
+/yolov3_ts_train_final.weights
