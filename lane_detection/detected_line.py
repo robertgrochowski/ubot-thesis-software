@@ -1,77 +1,33 @@
-from main.config import width, height
+from main.config import SIDE_LEFT, SIDE_RIGHT, HALF_WIDTH
 import math
-import cv2 as cv
+
 
 class DetectedLine:
-    SIDE_LEFT = -1
-    SIDE_RIGHT = 1
-
     def __init__(self, point1, point2):
         self.point1 = point1
         self.point2 = point2
 
-        self.x_score = 0
-        self.y_score = 0
-        self.total_diff = 0
-        self.total_dist = 0
+        self.middle_point = ((point1[0] + point2[0]) // 2, (point1[1] + point2[1]) // 2)
+        self.side = SIDE_LEFT if self.middle_point[0] < HALF_WIDTH else SIDE_RIGHT
 
-        self.angle = 0
+        self.angle = self.calculate_angle()
 
-        self.side = 0
-        self.score = 0
-        self.calculate_score_and_side()
-
-    def calculate_score_and_side(self):
+    def calculate_angle(self):
         (x1, y1) = self.point1
         (x2, y2) = self.point2
 
-        self.y_score = (abs(y2 + y1) // 2) / height
-        self.x_score = 0
-        if x1 < width // 2 and x2 < width // 2:
-            self.x_score = (width - (abs(x2 + x1) // 2)) / width
-            self.side = DetectedLine.SIDE_LEFT
+        dt_y = float(abs(y2 - y1))
+        dt_x = float(x2 - x1)
+        return round(math.degrees(math.atan(dt_x / dt_y))) if dt_y != 0 else 90
 
-        elif x1 > width // 2 and x2 > width // 2:
-            self.x_score = (abs(x2 + x1) // 2) / width
-            self.side = DetectedLine.SIDE_RIGHT
+    def is_left(self):
+        return self.side == SIDE_LEFT
 
-        self.score = self.y_score + self.x_score
-
-        # calculate angle
-        dt_y = abs(y2 - y1)
-        dt_x = abs(x2 - x1)
-        if dt_y == 0:
-            self.angle = 90
-
-        self.angle = round(math.degrees(math.atan(dt_x / dt_y)))
-        a = (y1-y2)/(x1-x2)
-
-        # TODO!!!
-        if self.side == -1 and a > 0:
-            self.angle *= -1
-
-        if self.side == 1 and a < 0:
-            self.angle *= -1
-
-    def calculate_total_diff(self, avg_x, avg_y):
-        self.total_diff = abs(self.x_score-avg_x) + abs(self.y_score-avg_y)
+    def is_right(self):
+        return self.side == SIDE_RIGHT
 
     def to_line(self):
-        return (self.point1[0], self.point1[1], self.point2[0], self.point2[1])
+        return self.point1[0], self.point1[1], self.point2[0], self.point2[1]
 
-    def calculate_distance(self, lines):
-        i = 0
-        for line in lines:
-            if line.side == self.side:
-                dis = self.dist(self.to_line(), line.to_line())
-                self.total_dist += dis
-                # print(f"Adding dist: {dis}")
-                i+=1
-
-    def dist(self, line1, line2):
-        line1_x = (line1[0] + line1[2]) // 2
-        line1_y = (line1[1] + line1[3]) // 2
-        line2_x = (line2[0] + line2[2]) // 2
-        line2_y = (line2[1] + line2[3]) // 2
-
-        return (line1_x-line2_x)**2 + abs(line1_y-line2_y)**2
+    def __lt__(self, other):
+        return self.angle < other.angle
