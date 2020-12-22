@@ -16,12 +16,14 @@ class LaneDetection:
         self.last_linear_function = dict()
 
     def preprocess_frame(self, frame):
-        # 1. Blur
+        # 1. Grayscale
+        grayscale = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        # 2. Blur
         kernel_size = 11
-        blur = cv.GaussianBlur(frame, (kernel_size, kernel_size), 0)
-        # 2. Canny
+        blur = cv.GaussianBlur(grayscale, (kernel_size, kernel_size), 0)
+        # 3. Canny
         canny_image = cv.Canny(blur, 200, 0)
-        # 3. Crop Canny
+        # 4. Crop Canny
         cropped_cannyed = region_of_interest(
             canny_image,
             np.array([REGION_OF_INTEREST], np.int32),
