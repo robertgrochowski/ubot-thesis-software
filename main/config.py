@@ -11,8 +11,8 @@ HALF_WIDTH = WIDTH//2
 HALF_HEIGHT = HEIGHT//2
 REGION_OF_INTEREST = [
             (0, HEIGHT),
-            (30, HEIGHT // 1.75),
-            (WIDTH - 30, HEIGHT // 1.75),
+            (0, HEIGHT // 2),
+            (WIDTH, HEIGHT // 2),
             (WIDTH, HEIGHT),
         ]
 

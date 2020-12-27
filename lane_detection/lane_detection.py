@@ -91,10 +91,10 @@ class LaneDetection:
                                     line.middle_point) > MIN_DISTANCE_FROM_OPPOSITE_LINE:
                     computed_lines_side[line.side].append(line)
                     color = LINE_CORRECT_LEFT_COLOR if line.is_left() else LINE_CORRECT_RIGHT_COLOR
-                    cv.line(self.labeled_frame, line.point1, line.point2, color, thickness=2)
                 else:
                     color = LINE_IGNORED_LEFT_COLOR if line.is_left() else LINE_IGNORED_RIGHT_COLOR
-                    cv.line(self.labeled_frame, line.point1, line.point2, color, thickness=2)
+
+                cv.line(self.labeled_frame, line.point1, line.point2, color, thickness=2)
 
         # Measure the quantity of the valid data we have collected so far.
         # If quantity of lines is insufficient, move motors in side calculated by function below
