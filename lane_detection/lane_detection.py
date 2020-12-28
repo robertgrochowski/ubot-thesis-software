@@ -59,21 +59,21 @@ class LaneDetection:
         # Get Edge Lines
         edge_lines = cv.HoughLinesP(
             self.preprocessed_frame,
-            rho=2,
-            theta=np.pi / 180,
-            threshold=10,
+            rho=HOUGH_RHO,
+            theta=HOUGH_THETA,
+            threshold=HOUGH_THRESHOLD,
             lines=np.array([]),
-            minLineLength=10,
-            maxLineGap=5
+            minLineLength=HOUGH_MIN_LINE_LENGTH,
+            maxLineGap=HOUGH_MAX_LINE_GAP
         )
 
         if edge_lines is None:
             self.draw_center_text("no lines found")
             return 0, 0
 
-        computed_lines_side = dict()
-        computed_lines_side[SIDE_LEFT] = []
-        computed_lines_side[SIDE_RIGHT] = []
+        computed_lines = dict()
+        computed_lines[SIDE_LEFT] = []
+        computed_lines[SIDE_RIGHT] = []
 
         for raw_line in edge_lines:
             for x1, y1, x2, y2 in raw_line:
@@ -82,14 +82,14 @@ class LaneDetection:
                 # If we do not have last linear functions defined yet
                 # Skip measuring (let them build themself firstly)
                 if len(self.last_linear_function) < 1:
-                    computed_lines_side[line.side].append(line)
+                    computed_lines[line.side].append(line)
                     continue
 
                 # If detected line is too close to the opposite line, ignore it
                 # (filtering process)
                 if distance_to_poly(self.last_linear_function[get_opposite_side(line.side)],
                                     line.middle_point) > MIN_DISTANCE_FROM_OPPOSITE_LINE:
-                    computed_lines_side[line.side].append(line)
+                    computed_lines[line.side].append(line)
                     color = LINE_CORRECT_LEFT_COLOR if line.is_left() else LINE_CORRECT_RIGHT_COLOR
                 else:
                     color = LINE_IGNORED_LEFT_COLOR if line.is_left() else LINE_IGNORED_RIGHT_COLOR
@@ -99,18 +99,18 @@ class LaneDetection:
         # Measure the quantity of the valid data we have collected so far.
         # If quantity of lines is insufficient, move motors in side calculated by function below
         # in order to collect more lines in next iteration.
-        power = self.get_motors_power_if_insufficient_data(computed_lines_side)
+        power = self.get_motors_power_if_insufficient_data(computed_lines)
         if power is not None:
             return power
 
         # Sort our lines by their angle
-        for side in sorted(computed_lines_side):
-            computed_lines_side[side] = sorted(computed_lines_side[side])
+        for side in sorted(computed_lines):
+            computed_lines[side] = sorted(computed_lines[side])
 
         # Pick median line
         md_line = dict()
-        md_line[SIDE_LEFT] = computed_lines_side[SIDE_LEFT][len(computed_lines_side[SIDE_LEFT]) // 2]
-        md_line[SIDE_RIGHT] = computed_lines_side[SIDE_RIGHT][len(computed_lines_side[SIDE_RIGHT]) // 2]
+        md_line[SIDE_LEFT] = computed_lines[SIDE_LEFT][len(computed_lines[SIDE_LEFT]) // 2]
+        md_line[SIDE_RIGHT] = computed_lines[SIDE_RIGHT][len(computed_lines[SIDE_RIGHT]) // 2]
 
         # Prepare for linear regression
         # (watch for right angles)

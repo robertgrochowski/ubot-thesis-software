@@ -1,3 +1,5 @@
+import numpy as np
+
 # --- Constants ---
 SIDE_LEFT = "-1"
 SIDE_RIGHT = "1"
@@ -15,6 +17,12 @@ REGION_OF_INTEREST = [
             (WIDTH, HEIGHT // 2),
             (WIDTH, HEIGHT),
         ]
+# Hough line transform
+HOUGH_RHO = 2
+HOUGH_THETA = np.pi / 180
+HOUGH_THRESHOLD = 10
+HOUGH_MIN_LINE_LENGTH = 10
+HOUGH_MAX_LINE_GAP = 5
 
 # filtering data
 MIN_VALID_LINES_PER_SIDE = 3
