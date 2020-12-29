@@ -35,3 +35,4 @@ class StraightLine:
 
     def get_horizontal_distance_from_point(self, point):
         return int(abs(point[0] - self.get_x(point[1])))
+
