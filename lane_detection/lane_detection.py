@@ -1,7 +1,7 @@
 import cv2 as cv
-import numpy as np
-from .utils import get_line_from_poly, draw_lines_on_frame, region_of_interest, distance_to_poly, get_opposite_side
+from .utils import draw_lines_on_frame, region_of_interest, distance_to_poly, get_opposite_side
 from .detected_line import DetectedLine
+from .straight_line import StraightLine
 from main.config import *
 
 
@@ -87,8 +87,8 @@ class LaneDetection:
 
                 # If detected line is too close to the opposite line, ignore it
                 # (filtering process)
-                if distance_to_poly(self.last_linear_function[get_opposite_side(line.side)],
-                                    line.middle_point) > MIN_DISTANCE_FROM_OPPOSITE_LINE:
+                if self.last_linear_function[get_opposite_side(line.side)]\
+                       .get_horizontal_distance_from_point(line.middle_point) > MIN_DISTANCE_FROM_OPPOSITE_LINE:
                     computed_lines[line.side].append(line)
                     color = LINE_CORRECT_LEFT_COLOR if line.is_left() else LINE_CORRECT_RIGHT_COLOR
                 else:
@@ -116,23 +116,23 @@ class LaneDetection:
         # (watch for right angles)
         self.prepare_for_polyfit(md_line)
 
-        # Build linear function of only two points
+        # Build linear functions from two points
         linear_function = dict()
-        linear_function[SIDE_LEFT] = np.poly1d(np.polyfit(
-            [md_line[SIDE_LEFT].point1[0], md_line[SIDE_LEFT].point2[0]],
-            [md_line[SIDE_LEFT].point1[1], md_line[SIDE_LEFT].point2[1]],
-            deg=1
-        ))
+        linear_function[SIDE_LEFT] = StraightLine.from_2points(
+            x_a=md_line[SIDE_LEFT].point1[0],
+            y_a=md_line[SIDE_LEFT].point1[1],
+            x_b=md_line[SIDE_LEFT].point2[0],
+            y_b=md_line[SIDE_LEFT].point2[1])
 
-        linear_function[SIDE_RIGHT] = np.poly1d(np.polyfit(
-            [md_line[SIDE_RIGHT].point1[0], md_line[SIDE_RIGHT].point2[0]],
-            [md_line[SIDE_RIGHT].point1[1], md_line[SIDE_RIGHT].point2[1]],
-            deg=1
-        ))
+        linear_function[SIDE_RIGHT] = StraightLine.from_2points(
+            x_a=md_line[SIDE_RIGHT].point1[0],
+            y_a=md_line[SIDE_RIGHT].point1[1],
+            x_b=md_line[SIDE_RIGHT].point2[0],
+            y_b=md_line[SIDE_RIGHT].point2[1])
 
         # Build left, middle and right lines from linear functions
-        approx_left_line = get_line_from_poly(linear_function[SIDE_LEFT], APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
-        approx_right_line = get_line_from_poly(linear_function[SIDE_RIGHT], APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
+        approx_left_line = linear_function[SIDE_LEFT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
+        approx_right_line = linear_function[SIDE_RIGHT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
         middle_lines_avg = self.get_line_between(approx_left_line, approx_right_line)
 
         # Draw lines on frame
@@ -168,14 +168,6 @@ class LaneDetection:
     def get_line_between(self, left_line, right_line):
         return [(left_line[0] + right_line[0]) // 2, APPROX_LINE_MIN_Y,
                 (left_line[2] + right_line[2]) // 2, APPROX_LINE_MAX_Y]
-
-    def prepare_for_polyfit(self, lines):
-        # Watch for right angle (can't fit to linear function when both points x'es are equal)
-        # The solution is to add one pixel to one of x'es (one pixel doesn't matter really much)
-        # to make sure that straight coefficient is not equal to zero
-        for k, v in lines.items():
-            if v.point1[0] - v.point2[0] == 0:
-                v.point1 = (v.point1[0]+1, v.point2[0])
 
     def get_motors_power_if_insufficient_data(self, computed_lines):
         # Stop if there are no valid lines
