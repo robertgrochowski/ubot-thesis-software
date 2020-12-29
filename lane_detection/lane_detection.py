@@ -112,10 +112,6 @@ class LaneDetection:
         md_line[SIDE_LEFT] = computed_lines[SIDE_LEFT][len(computed_lines[SIDE_LEFT]) // 2]
         md_line[SIDE_RIGHT] = computed_lines[SIDE_RIGHT][len(computed_lines[SIDE_RIGHT]) // 2]
 
-        # Prepare for linear regression
-        # (watch for right angles)
-        self.prepare_for_polyfit(md_line)
-
         # Build linear functions from two points
         linear_function = dict()
         linear_function[SIDE_LEFT] = StraightLine.from_2points(
