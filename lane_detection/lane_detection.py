@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 from .utils import get_line_from_poly, draw_lines_on_frame, region_of_interest, distance_to_poly, get_opposite_side
 from .detected_line import DetectedLine
+from .straight_line import StraightLine
 from main.config import *
 
 
@@ -116,23 +117,23 @@ class LaneDetection:
         # (watch for right angles)
         self.prepare_for_polyfit(md_line)
 
-        # Build linear function of only two points
+        # Build linear functions from two points
         linear_function = dict()
-        linear_function[SIDE_LEFT] = np.poly1d(np.polyfit(
-            [md_line[SIDE_LEFT].point1[0], md_line[SIDE_LEFT].point2[0]],
-            [md_line[SIDE_LEFT].point1[1], md_line[SIDE_LEFT].point2[1]],
-            deg=1
-        ))
+        linear_function[SIDE_LEFT] = StraightLine.from_2points(
+            x_a=md_line[SIDE_LEFT].point1[0],
+            y_a=md_line[SIDE_LEFT].point1[1],
+            x_b=md_line[SIDE_LEFT].point2[0],
+            y_b=md_line[SIDE_LEFT].point2[1])
 
-        linear_function[SIDE_RIGHT] = np.poly1d(np.polyfit(
-            [md_line[SIDE_RIGHT].point1[0], md_line[SIDE_RIGHT].point2[0]],
-            [md_line[SIDE_RIGHT].point1[1], md_line[SIDE_RIGHT].point2[1]],
-            deg=1
-        ))
+        linear_function[SIDE_RIGHT] = StraightLine.from_2points(
+            x_a=md_line[SIDE_RIGHT].point1[0],
+            y_a=md_line[SIDE_RIGHT].point1[1],
+            x_b=md_line[SIDE_RIGHT].point2[0],
+            y_b=md_line[SIDE_RIGHT].point2[1])
 
         # Build left, middle and right lines from linear functions
-        approx_left_line = get_line_from_poly(linear_function[SIDE_LEFT], APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
-        approx_right_line = get_line_from_poly(linear_function[SIDE_RIGHT], APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
+        approx_left_line = linear_function[SIDE_LEFT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
+        approx_right_line = linear_function[SIDE_RIGHT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
         middle_lines_avg = self.get_line_between(approx_left_line, approx_right_line)
 
         # Draw lines on frame
