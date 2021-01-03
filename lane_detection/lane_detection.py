@@ -1,5 +1,5 @@
 import cv2 as cv
-from .utils import draw_lines_on_frame, region_of_interest, distance_to_poly, get_opposite_side
+from .utils import draw_lines_on_frame, region_of_interest, get_opposite_side
 from .detected_line import DetectedLine
 from .straight_line import StraightLine
 from main.config import *
@@ -35,16 +35,16 @@ class LaneDetection:
         side_right = bias < 0
         bias = abs(bias)
 
-        if bias < MIN_BIAS:
+        if bias < MIN_BIAS_DIST:
             return INITIAL_POWER_LEFT, INITIAL_POWER_RIGHT
 
-        bias = min(bias, MAX_BIAS)
-        add = abs(bias)/MAX_BIAS*MAX_ADDITIONAL_POWER
+        bias = min(bias, MAX_BIAS_DIST)
+        add = abs(bias) / MAX_BIAS_DIST * MAX_ADDITIONAL_POWER
 
         if side_right:
-            return INITIAL_POWER_LEFT, INITIAL_POWER_RIGHT-add*0.5
+            return INITIAL_POWER_LEFT+add, INITIAL_POWER_RIGHT
         else:
-            return INITIAL_POWER_LEFT-add*0.5, INITIAL_POWER_RIGHT
+            return INITIAL_POWER_LEFT, INITIAL_POWER_RIGHT+add
 
     def process(self, frame):
         self.iterations += 1
@@ -129,12 +129,12 @@ class LaneDetection:
         # Build left, middle and right lines from linear functions
         approx_left_line = linear_function[SIDE_LEFT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
         approx_right_line = linear_function[SIDE_RIGHT].get_segment_from_y_points(APPROX_LINE_MIN_Y, APPROX_LINE_MAX_Y)
-        middle_lines_avg = self.get_line_between(approx_left_line, approx_right_line)
+        middle_line = self.get_line_between(approx_left_line, approx_right_line)
 
         # Draw lines on frame
         self.labeled_frame = draw_lines_on_frame(
             self.labeled_frame,
-            [[middle_lines_avg, approx_right_line, approx_left_line]],
+            [[middle_line, approx_right_line, approx_left_line]],
             thickness=5,
         )
 
@@ -146,12 +146,12 @@ class LaneDetection:
         # if so, use data from previous iteration
         if self.iterations >= ITERATIONS_TO_STORE_LINEAR_FUNC:
             if distance < MAX_DISTANCE_BETWEEN_LINES:
-                middle_lines_avg = self.get_line_between(self.last_linear_function[SIDE_LEFT],
-                                                         self.last_linear_function[SIDE_RIGHT])
+                middle_line = self.get_line_between(self.last_linear_function[SIDE_LEFT],
+                                                    self.last_linear_function[SIDE_RIGHT])
             else:
                 self.last_linear_function = linear_function
 
-        bias = self.get_bias(middle_lines_avg)
+        bias = self.get_bias(middle_line)
         return self.compute_engines_power(bias)
 
     def get_labeled_image(self):
