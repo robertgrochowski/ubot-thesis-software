@@ -192,7 +192,7 @@ class LaneDetection:
 
         cv.putText(self.labeled_frame, "bias: "+str(bias), (HALF_WIDTH - 30, HEIGHT - 40),
                    fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                   fontScale=0.5,
+                   fontScale=0.7,
                    color=(255, 255, 255),
                    thickness=2,
                    lineType=cv.LINE_AA)

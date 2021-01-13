@@ -19,6 +19,8 @@ class MainLogic:
         self.camera = PiCamera()
         self.camera.resolution = (WIDTH, HEIGHT)
         self.camera.framerate = 20
+        self.camera.brightness = 60
+        # self.camera.ISO = 900
         self.rawCapture = PiRGBArray(self.camera, size=(WIDTH, HEIGHT))
 
     def start(self):
@@ -26,8 +28,8 @@ class MainLogic:
         time.sleep(1)
 
         out = None if not RECORD else cv.VideoWriter(RECORD_FILENAME,
-                                                     cv.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-                                                     10,
+                                                     cv.VideoWriter_fourcc(*'mp4v'),
+                                                     15,
                                                      (WIDTH, HEIGHT))
         self.engines.start_forward()
         while self.running:
@@ -64,11 +66,13 @@ class MainLogic:
         self.engines.stop()
 
     def draw_engines_power(self, img, left_motor_pwr, right_motor_pwr):
-        img = cv.putText(img, "pwr: " + str(right_motor_pwr), (WIDTH - 75, HEIGHT - 20),
-                         cv.FONT_HERSHEY_SIMPLEX, 0.5,
-                         (255, 255, 0), 2, cv.LINE_AA)
+        img = cv.putText(img, "pwr: " + str(int(right_motor_pwr)), (WIDTH - 100, HEIGHT - 20),
+                         cv.FONT_HERSHEY_SIMPLEX,
+                         0.7,
+                         (204, 50, 153), 2, cv.LINE_AA)
 
-        img = cv.putText(img, "pwr: " + str(left_motor_pwr), (10, HEIGHT - 20), cv.FONT_HERSHEY_SIMPLEX,
-                         0.5,
-                         (255, 255, 0), 2, cv.LINE_AA)
+        img = cv.putText(img, "pwr: " + str(int(left_motor_pwr)), (10, HEIGHT - 20),
+                         cv.FONT_HERSHEY_SIMPLEX,
+                         0.7,
+                         (204, 50, 153), 2, cv.LINE_AA)
         return img
