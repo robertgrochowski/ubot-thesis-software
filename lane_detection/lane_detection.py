@@ -22,7 +22,7 @@ class LaneDetection:
         kernel_size = 11
         blur = cv.GaussianBlur(grayscale, (kernel_size, kernel_size), 0)
         # 3. Canny
-        canny_image = cv.Canny(blur, 200, 0)
+        canny_image = cv.Canny(blur, threshold1=CANNY_THRESHOLD1, threshold2=CANNY_THRESHOLD2)
         # 4. Crop Canny
         cropped_cannyed = region_of_interest(
             canny_image,
