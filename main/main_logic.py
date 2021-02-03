@@ -20,7 +20,6 @@ class MainLogic:
         self.camera.resolution = (WIDTH, HEIGHT)
         self.camera.framerate = 20
         self.camera.brightness = 60
-        # self.camera.ISO = 900
         self.rawCapture = PiRGBArray(self.camera, size=(WIDTH, HEIGHT))
 
     def start(self):

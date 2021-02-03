@@ -12,7 +12,9 @@ class StraightLine:
 
     @classmethod
     def from_2points(cls, x_a, y_a, x_b, y_b):
-        a = (y_a - y_b) / (x_a - x_b)
+        if x_a == x_b:
+            x_b += 0.1
+        a = float(y_a - y_b) / float(x_a - x_b)
         b = y_a - a * x_a
         return StraightLine(a, b)
 
