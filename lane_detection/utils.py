@@ -36,26 +36,5 @@ def draw_lines_on_frame(img, lines, thickness=3):
     return img
 
 
-def get_x_from_poly(poly, y):
-    b = round(poly[0], 4)
-    a = round(poly[1], 4)
-
-    # sometimes we round values to 0
-    # prevent a from being zero
-    if a == 0:
-        a = 0.001
-
-    poly_x = (y - b) / a
-    return int(poly_x)
-
-
-def distance_to_poly(poly, point):
-    return int(abs(point[0] - get_x_from_poly(poly, point[1])))
-
-
-def get_line_from_poly(poly, y1, y2):
-    return [get_x_from_poly(poly, y1), int(y1), get_x_from_poly(poly, y2), int(y2)]
-
-
 def get_opposite_side(side):
     return SIDE_LEFT if side == SIDE_RIGHT else SIDE_RIGHT

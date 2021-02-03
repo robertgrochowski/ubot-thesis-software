@@ -18,7 +18,7 @@ class DetectedLine:
 
         dt_y = float(abs(y2 - y1))
         dt_x = float(x2 - x1)
-        return round(math.degrees(math.atan(dt_x / dt_y))) if dt_y != 0 else 90
+        return round(math.degrees(math.atan(dt_x / dt_y))) if dt_y != 0 else 0
 
     def is_left(self):
         return self.side == SIDE_LEFT
